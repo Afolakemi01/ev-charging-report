@@ -1,0 +1,27 @@
+[project]
+
+name = "ev-charging-report"
+
+version = "0.1.0"
+
+dependencies = [
+    "pyarrow",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.setuptools]
+packages = ["ev_charging_report"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.ruff]
+exclude = [".venv"]
+
+[project.scripts]
+ev-charging-report = "ev_charging_report.pipeline:main"

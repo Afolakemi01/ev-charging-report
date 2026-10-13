@@ -1,0 +1,6 @@
+{
+  "input_path": "data/sessions.csv",
+  "clean_output_path": "output/clean_sessions.parquet",
+  "rejects_output_path": "output/rejected_sessions.csv",
+  "summary_output_path": "output/summary.json"
+}
