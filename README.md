@@ -24,6 +24,7 @@ flowchart LR
     D --> F[clean_sessions.parquet]
     D --> G[summary.json]
     E --> H[rejected_sessions.csv]
+    E --> G
 ```
 
 Each row passes through a chain of checks. The first failing check determines the reject reason; rows that pass every check are parsed into typed values (`datetime`, `Decimal`) and collected for output.
@@ -39,7 +40,8 @@ Each row passes through a chain of checks. The first failing check determines th
 
 | Rule | Reject reason |
 |---|---|
-| A required column is missing | `missing_field` / `missing_<field>` |
+| An expected column is missing from the file header | `missing_field` |
+| A row has fewer values than the header (truncated row) | `missing_<field>` |
 | A field is blank | `blank_<field>` |
 | `start_time` or `end_time` is not a valid ISO timestamp | `unparsable_time` |
 | `end_time` is not after `start_time` | `end_not_after_start` |
@@ -77,6 +79,7 @@ Example `summary.json` from the sample data:
 - **Explicit Parquet schema.** The clean dataset carries real types instead of strings, so downstream consumers do not need to re-parse it.
 - **Configuration over hard-coding.** Input and output paths live in `config.json`, keeping code unchanged across environments.
 - **Separation of concerns.** `cleaning.py` contains validation and output logic; `pipeline.py` handles configuration, orchestration and logging.
+- **Plausibility limit on kWh.** Sessions above 150 kWh are rejected as likely meter or export errors. This threshold is a business rule, not a physical limit, and should be reviewed with operations as larger-battery vehicles become common.
 
 ## Project structure
 
@@ -86,7 +89,7 @@ ev-charging-report/
 ├── pyproject.toml
 ├── data/
 │   └── sessions.csv
-├── output/
+├── output/  # created on run (git-ignored)
 ├── ev_charging_report/
 │   ├── __init__.py
 │   ├── cleaning.py
@@ -100,7 +103,7 @@ ev-charging-report/
 **Requirements:** Python 3.12+
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/Afolakemi01/ev-charging-report.git
 cd ev-charging-report
 python -m venv .venv
 source .venv/bin/activate
